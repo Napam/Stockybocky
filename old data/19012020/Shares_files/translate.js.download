@@ -1,0 +1,1 @@
+define(["lang"],function(a){var b=$.ajax({async:!1,url:"i18n/translation_"+a+".json"}).done(function(a){return a});return{lang:a,get:function(a){var c=b.responseJSON;return void 0===c&&(c=JSON.parse(b.responseText)),void 0===c||void 0===c[a]?a:c[a]}}});

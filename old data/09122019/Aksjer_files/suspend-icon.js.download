@@ -1,0 +1,1 @@
+define(function(){return React.createClass({toggle:function(){},render:function(){var a="",b=this.props.suspend;return("HALT"===b||"SUSPENDED"===b)&&(a="fa fa-exclamation"),React.DOM.i({className:a})}})});
