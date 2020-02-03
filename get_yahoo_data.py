@@ -53,3 +53,8 @@ if __name__ == '__main__':
     df = get_keystats(tickers)
     df.to_csv(cng.YAHOO_CSV_NAME, index=False)
 
+    # t = YahooFinancials('SKIS-B.ST')
+    # print(t.get_key_statistics_data())
+
+
+

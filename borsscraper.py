@@ -9,7 +9,7 @@ import pandas as pd
 from common import print_html
 import config as cng
 
-def scrape_oslobors(quotes: str, returns: str, verbose: bool = False):
+def SCRAPE_OSLOBORS_TITLE(quotes: str, returns: str, verbose: bool = False):
     '''
     Scrapes stocks from oslo bors website. HTML of websites of quotes and returns 
     should be located in same folder this file. 
@@ -111,7 +111,7 @@ def scrape_oslobors(quotes: str, returns: str, verbose: bool = False):
     return df
 
 if __name__ == '__main__':
-    df = scrape_oslobors(cng.QUOTES_TARGET_FILE, cng.RETURNS_TARGET_FILE, verbose=True)
+    df = SCRAPE_OSLOBORS_TITLE(cng.QUOTES_TARGET_FILE, cng.RETURNS_TARGET_FILE, verbose=True)
     df.to_csv(cng.BORS_CSV_NAME, index=False)
     
 

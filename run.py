@@ -3,7 +3,7 @@ import pandas as pd
 from get_osebx_html_files import get_htmlfile 
 from get_yahoo_data import get_keystats
 from datawrangle import merge_bors_and_yahoo_dfs
-from borsscraper import scrape_oslobors
+from borsscraper import SCRAPE_OSLOBORS_TITLE
 
 if __name__ == '__main__':
     # Obtain HTML pages of Oslo Bors 
@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     # Scrape HTML files
     print('Scraping HTML files')
-    df = scrape_oslobors(cng.QUOTES_TARGET_FILE, cng.RETURNS_TARGET_FILE, verbose=True)
+    df = SCRAPE_OSLOBORS_TITLE(cng.QUOTES_TARGET_FILE, cng.RETURNS_TARGET_FILE, verbose=True)
     df.to_csv(cng.BORS_CSV_NAME, index=False)
 
     # Obtain key statistics from YahooFinancials
