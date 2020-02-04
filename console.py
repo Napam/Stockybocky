@@ -3,6 +3,9 @@ import os
 import strings
 import time 
 import consoleconfig as cng 
+import config as cng2
+from threading import Thread
+from common import case_decorator, join_threads
 
 def clear_screen():
     '''Obvious'''
@@ -15,7 +18,6 @@ def logo_title(title: str):
 def start_menu(func_map: dict):
     '''Prints function map prettily'''
     logo_title(strings.LOGO_TITLE)
-
     for key, tup in func_map.items():
         print(key + '.', tup[0])  
 
@@ -24,15 +26,6 @@ def enter_prompt():
     print(strings.ENTER_PROMPT, end=' ')
     return input()
 
-def case_decorator(func):
-    '''Decorator to enforce commmon behavior for cases'''
-    def wrapboi(*args, **kwargs):
-        clear_screen()
-        retobj = func(*args, **kwargs)
-        time.sleep(cng.CASE_EXIT_WAIT_TIME) 
-        return retobj
-    return wrapboi
-
 @case_decorator
 def case1():
     print('Omae wa shinderu')
@@ -40,38 +33,66 @@ def case1():
 
 @case_decorator
 def case2():
-    pass
+    '''
+    Obtain Oslo Bors quotes and returns
+    '''
+    from get_osebx_html_files import get_htmlfile 
+    print('Obtaining HTML files from Oslo Bors')
+    args = (
+        (cng2.BORS_QUOTES_URL, cng2.QUOTES_TARGET_FILE, cng2.QUOTES_WAIT_TARGET_CLASS),
+        (cng2.BORS_RETURNS_URL, cng2.RETURNS_TARGET_FILE, cng2.RETURNS_WAIT_TARGET_CLASS)
+    )
+
+    threads = [Thread(target=get_htmlfile, args=a) for a in args]
+    [th.start() for th in threads]
+    join_threads(threads, verbose=False)
+    print('Obtained HTML files')
 
 @case_decorator
 def case3():
-    pass
+    '''
+    Scrape Oslo bors HTML files
+    '''
 
 @case_decorator
 def case4():
-    pass
+    '''
+    Scrape Yahoo Finance
+    '''
 
 @case_decorator
 def case5():
-    pass
+    '''
+    Backup current data
+    '''
 
 @case_decorator
 def exit_program():
+    '''
+    Exit program
+    '''
     print(strings.EXIT_MSG)
     time.sleep(cng.MSG_WAIT_TIME)
     clear_screen()
     exit()
 
+def construct_func_map(title_func_pairs: list):
+    func_map = {}
+    for i, pair in enumerate(title_func_pairs, start=1):
+        func_map[str(i)] = pair
+    return func_map
+
 def main_interface():
     print(strings.START_MSG)
 
-    func_map = {
-        '1':(strings.UPDATE_ALL_TITLE, case1),
-        '2':(strings.GET_OSLOBORS_TITLE, case2),
-        '3':(strings.SCRAPE_OSLOBORS_TITLE, case3),
-        '4':(strings.SCRAPE_YAHOO_TITLE, case4),
-        '5':(strings.BACKUP_CURRENT_DATA_TITLE, case5),
-        '6':(strings.EXIT_TITLE, exit_program)
-    }
+    func_map = construct_func_map([
+        (strings.UPDATE_ALL_TITLE, case1),
+        (strings.GET_OSLOBORS_TITLE, case2),
+        (strings.SCRAPE_OSLOBORS_TITLE, case3),
+        (strings.SCRAPE_YAHOO_TITLE, case4),
+        (strings.BACKUP_CURRENT_DATA_TITLE, case5),
+        (strings.EXIT_TITLE, exit_program)
+    ])
     
     run = 1
     try:
@@ -80,8 +101,7 @@ def main_interface():
             start_menu(func_map)
 
             # Get key to func map
-            # command = input()        
-            command = enter_prompt()        
+            command = enter_prompt()  
 
             # Pressing enter without specifying input exits program
             if not command:

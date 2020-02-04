@@ -73,6 +73,18 @@ def join_threads(threads: list, verbose: bool = False, blink_interval: int = cng
     [worker.join() for worker in threads]
     return
 
+def case_decorator(func):
+    '''Decorator to enforce commmon behavior for cases'''
+    def wrapboi(*args, **kwargs):
+        clear_screen()
+        retobj = func(*args, **kwargs)
+        time.sleep(cng.CASE_EXIT_WAIT_TIME) 
+        return retobj
+
+    # "Inherit" docstring
+    wrapboi.__doc__ = func.__doc__
+    return wrapboi
+
 if __name__ == '__main__':
     def test_join_threads():
         '''Test join_threads using dummy threads'''
