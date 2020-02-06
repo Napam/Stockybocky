@@ -7,13 +7,13 @@ from borsscraper import SCRAPE_OSLOBORS_TITLE
 
 if __name__ == '__main__':
     # Obtain HTML pages of Oslo Bors 
-    print('Obtaining HTML files from Oslo Bors')
+    # print('Obtaining HTML files from Oslo Bors')
     get_htmlfile(url=cng.BORS_QUOTES_URL, targetfile=cng.QUOTES_TARGET_FILE, wait_target_class=cng.QUOTES_WAIT_TARGET_CLASS)
     get_htmlfile(url=cng.BORS_RETURNS_URL, targetfile=cng.RETURNS_TARGET_FILE, wait_target_class=cng.RETURNS_WAIT_TARGET_CLASS)
 
     # Scrape HTML files
     print('Scraping HTML files')
-    df = SCRAPE_OSLOBORS_TITLE(cng.QUOTES_TARGET_FILE, cng.RETURNS_TARGET_FILE, verbose=True)
+    df = SCRAPE_OSLOBORS_TITLE(cng.QUOTES_TARGET_FILE, cng.RETURNS_TARGET_FILE, verbose=False)
     df.to_csv(cng.BORS_CSV_NAME, index=False)
 
     # Obtain key statistics from YahooFinancials

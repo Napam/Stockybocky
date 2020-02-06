@@ -1,4 +1,4 @@
-from common import case_decorator
+from common import case_decorator, clear_screen
 
 @case_decorator
 def case1():

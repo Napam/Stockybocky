@@ -5,9 +5,10 @@ This code scrapes data from HTML files from Oslo Bors.
 from bs4 import BeautifulSoup as bs
 from pprint import pprint
 import numpy as np 
-import pandas as pd 
+from pandas import DataFrame, to_numeric
 from common import print_html
 import config as cng
+from tqdm import tqdm
 
 def SCRAPE_OSLOBORS_TITLE(quotes: str, returns: str, verbose: bool = False):
     '''
@@ -44,7 +45,7 @@ def SCRAPE_OSLOBORS_TITLE(quotes: str, returns: str, verbose: bool = False):
 
     # Create lists with features. Only preprocessing for strings are done (values are all strings). 
     # Further preprocessing will be done later when the values are in a pandas DataFrame. 
-    for quotesrow, returnrow in zip(html_quotes, html_return):
+    for quotesrow, returnrow in tqdm(zip(html_quotes, html_return), total=len(html_quotes), disable=verbose):
         # Scrape ticker, name, marketcap, sector and info. 
         tickers.append(quotesrow.a.text)
         names.append(quotesrow.find('td', {'data-header':'Navn'}).text)
@@ -66,7 +67,7 @@ def SCRAPE_OSLOBORS_TITLE(quotes: str, returns: str, verbose: bool = False):
         profits_ytd.append(returnrow.find('td', class_='CHANGE_YEAR_PCT_SLACK').text.replace('%', ''))
         profits_1yr.append(returnrow.find('td', class_='CHANGE_1YEAR_PCT_SLACK').text.replace('%', ''))
 
-        if (verbose):
+        if verbose:
             print(f'Ticker: {tickers[-1]}')
             print(f'Name: {names[-1]}')
             print(f'Last: {lasts[-1]}')
@@ -82,11 +83,11 @@ def SCRAPE_OSLOBORS_TITLE(quotes: str, returns: str, verbose: bool = False):
             print(f'Profit 1 year: {profits_1yr[-1]}')
             print()
 
-    df = pd.DataFrame(dict(
+    df = DataFrame(dict(
         ticker=tickers,
         name=names,
         sector=sectors,
-        last_=lasts, # pd.DataFrame.last is a method, hence the underscore
+        last_=lasts, # DataFrame.last is a method, hence the underscore
         buy=buys,
         sell=sells,
         tradecount=tradecounts,
@@ -101,17 +102,17 @@ def SCRAPE_OSLOBORS_TITLE(quotes: str, returns: str, verbose: bool = False):
 
     # Turn returns to floats then divide by 100 to convert from percentages to "numbers"
     columns_to_num = ['profit_today', 'profit_1wk', 'profit_1month', 'profit_ytd', 'profit_1yr']
-    df[columns_to_num] = df[columns_to_num].apply(pd.to_numeric, errors='coerce') / 100
+    df[columns_to_num] = df[columns_to_num].apply(to_numeric, errors='coerce') / 100
 
     # Turn other things to numeric as well 
-    df.last_ = pd.to_numeric(df.last_)
-    df.buy = pd.to_numeric(df.buy, errors='coerce')
-    df.sell = pd.to_numeric(df.sell, errors='coerce')
-    df.tradecount = pd.to_numeric(df.tradecount)
+    df.last_ = to_numeric(df.last_)
+    df.buy = to_numeric(df.buy, errors='coerce')
+    df.sell = to_numeric(df.sell, errors='coerce')
+    df.tradecount = to_numeric(df.tradecount)
     return df
 
 if __name__ == '__main__':
-    df = SCRAPE_OSLOBORS_TITLE(cng.QUOTES_TARGET_FILE, cng.RETURNS_TARGET_FILE, verbose=True)
+    df = SCRAPE_OSLOBORS_TITLE(cng.QUOTES_TARGET_FILE, cng.RETURNS_TARGET_FILE, verbose=False)
     df.to_csv(cng.BORS_CSV_NAME, index=False)
     
 

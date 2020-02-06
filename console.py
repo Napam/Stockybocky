@@ -5,11 +5,7 @@ import time
 import consoleconfig as cng 
 import config as cng2
 from threading import Thread
-from common import case_decorator, join_threads
-
-def clear_screen():
-    '''Obvious'''
-    os.system('cls')
+from common import case_decorator, join_threads, clear_screen
 
 def logo_title(title: str):
     '''Prints logo title'''
