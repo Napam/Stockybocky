@@ -3,7 +3,7 @@
 import numpy as np 
 import pandas as pd 
 from pprint import pprint
-import config as cng
+import scrapeconfig as cng
 
 def merge_bors_and_yahoo_dfs(bors_name: str, yahoo_name: str, result_filename: str):
     '''

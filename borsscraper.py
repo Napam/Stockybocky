@@ -7,7 +7,7 @@ from pprint import pprint
 import numpy as np 
 from pandas import DataFrame, to_numeric
 from common import print_html
-import config as cng
+import scrapeconfig as cng
 from tqdm import tqdm
 
 def SCRAPE_OSLOBORS_TITLE(quotes: str, returns: str, verbose: bool = False):

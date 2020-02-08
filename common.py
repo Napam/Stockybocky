@@ -4,13 +4,9 @@ import time
 import numpy as np 
 import sys
 from io import StringIO
-import config as cng
+import scrapeconfig as cng
 import consoleconfig as ccng
 import os
-
-def clear_screen():
-    '''Obvious'''
-    os.system('cls')
 
 def print_html(html_test):
     '''To print html containers returned by beautifulsoup4'''
@@ -87,7 +83,7 @@ def case_decorator(func):
         time.sleep(ccng.CASE_EXIT_WAIT_TIME) 
         return retobj
 
-    # "Inherit" docstring
+    # "Inherit docstring"
     wrapboi.__doc__ = func.__doc__
     return wrapboi
 

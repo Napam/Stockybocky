@@ -1,4 +1,4 @@
-import config as cng
+import scrapeconfig as cng
 import pandas as pd 
 from get_osebx_html_files import get_htmlfile 
 from get_yahoo_data import get_keystats

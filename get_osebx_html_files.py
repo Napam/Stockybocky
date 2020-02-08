@@ -7,7 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import config as cng 
+import scrapeconfig as cng 
 
 def get_htmlfile(url: str, targetfile: str, wait_target_class: str=None, timeout: int=cng.DEFAULT_TIMEOUT, 
                  browser: str=cng.DEFAULT_BROWSER):

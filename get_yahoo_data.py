@@ -9,7 +9,7 @@ from pprint import pprint
 import time
 from yahoofinancials import YahooFinancials 
 from common import join_threads
-import config as cng 
+import scrapeconfig as cng 
 
 def threadgrind(ticker: str, featdict: dict):
     print(f'{ticker} ', end='')

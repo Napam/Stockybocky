@@ -1,5 +1,5 @@
 '''
-Configurations and strings
+Configurations and strings for scraping stuff
 '''
 
 '''General'''

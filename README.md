@@ -6,7 +6,7 @@ Run run.py to get precious data
 
 # Read this
 The default browser is Google Chrome (in order to get HTML files).
-You can change it in config.py. The supported browsers are:
+You can change it in scrapeconfig.py. The supported browsers are:
 'chrome'
 'firefox'
 'opera'
