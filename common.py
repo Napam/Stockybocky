@@ -18,31 +18,6 @@ def print_html(html_test):
 
     return strhtml
 
-# TODO: Overengineer string manipulation
-class fstr:
-    '''
-    Class for high performance string manipulation
-    fstr stands for fast string
-
-    Idea: Implement polymorphic interface using StringIO as backend for 
-    string stuff. 
-    '''
-    _file_str = None
-
-    def __init__(self, initstring: str = ''):
-        self._file_str = StringIO()
-        self._file_str.write(initstring)
-
-    def append(self, string):
-        self._file_str.write(string)
-
-    def __add__(self, string):
-        self.append(string)
-        return self
-
-    def __str__(self):
-        return self._file_str.getvalue()
-
 def join_threads(threads: list, verbose: bool = False, blink_interval: int = cng.BLINK_INTERVAL):
     '''
     Join ongoing threads from threading module, has a verbose functionality showing
