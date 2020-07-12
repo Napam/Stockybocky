@@ -1,1 +1,0 @@
-define(function(){var a="no";return window.location.href.indexOf("ob_eng")>-1&&(a="en"),a});
