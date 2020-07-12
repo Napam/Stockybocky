@@ -1,0 +1,17 @@
+ol.abc {    
+    list-style-type: none;
+    counter-reset:  chapter;    
+}
+
+ol.abc li {
+    counter-increment: chapter;
+    position: relative;
+    padding-left: 1.4em;
+}
+
+ol.abc li:before {
+    position: absolute;
+    left: 0;
+    top: 0;
+    content: counter(chapter, lower-alpha) ') ';
+}

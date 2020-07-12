@@ -1,0 +1,1 @@
+define(["translate"],function(a){return React.createClass({toggle:function(){},render:function(){var b="fa",c=this.props.liquidity;return 1==c&&(b="fa fa-bolt"),React.DOM.i({title:a.get("TITLE_HAS_LIQUIDITY_PROVIDER"),className:b})}})});
