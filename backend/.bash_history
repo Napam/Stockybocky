@@ -83,3 +83,18 @@ exit
 exit
 pip list
 exit
+ls
+python get_data.py
+python get_data.py
+python borsscraper.py 
+python borsscraper.py 
+clear
+ls
+python borsscraper.py > lol.txt
+python borsscraper.py 
+python borsscraper.py 
+python borsscraper.py 
+python borsscraper.py 
+python borsscraper.py 
+python borsscraper.py 
+python borsscraper.py 
