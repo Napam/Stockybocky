@@ -5,8 +5,8 @@ Configurations and strings for scraping stuff
 '''General'''
 BORS_CSV_FILE = 'data/borsdata.csv'
 YAHOO_CSV_FILE = 'data/yahoodata.csv'
-RETURNS_TARGET_FILE = 'data/OSEBX_Returns.html'
-QUOTES_TARGET_FILE = 'data/OSEBX_Quotes.html'
+RETURNS_HTML_FILE = 'data/OSEBX_Returns.html'
+QUOTES_HTML_FILE = 'data/OSEBX_Quotes.html'
 BORS_RETURNS_URL = "https://www.oslobors.no/ob_eng/markedsaktivitet/#/list/shares/return/ob/all/all/false"
 BORS_QUOTES_URL = "https://www.oslobors.no/ob_eng/markedsaktivitet/#/list/shares/quotelist/ob/all/all/false"
 FINALDATASET_FILENAME = 'data/OSEBX_dataset.csv'
