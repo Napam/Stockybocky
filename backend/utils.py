@@ -16,12 +16,12 @@ def print_html(html_test):
 
     return strhtml
 
-def join_threads(threads: list, verbose: bool = False, blink_interval: int = cng.BLINK_INTERVAL):
+def join_threads(threads: list, verbose: int=0, blink_interval: int=cng.BLINK_INTERVAL):
     '''
     Join ongoing threads from threading module, has a verbose functionality showing
     the number of active threads.
     '''
-    if verbose:
+    if verbose >= 1:
         space = ' '
         backspace = '\b'
         basemsg = "Active threads: "

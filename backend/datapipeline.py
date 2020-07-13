@@ -28,6 +28,8 @@ def get_osebx_htmlfile(url: str, timeout: int=cng.DEFAULT_TIMEOUT, wait_target_c
                        verbose: int=1, dump: bool=True, file: str=None) -> str:
     '''Loads html file using selenium'''
 
+    if verbose >= 1: print(f'Gathering data from {url}')
+
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
@@ -35,11 +37,11 @@ def get_osebx_htmlfile(url: str, timeout: int=cng.DEFAULT_TIMEOUT, wait_target_c
     chrome_options.add_argument("--disable-gpu")
 
     driver = webdriver.Chrome(options=chrome_options)
-    if verbose >= 1: print('Initialized chromedriver')
+    if verbose >= 2: print('Initialized chromedriver')
 
     driver.get(url)
 
-    if verbose >= 1: print('Waiting for target HTML class to appear')
+    if verbose >= 2: print('Waiting for target HTML class to appear')
 
     # If the webpage dynamically loads the table with the stock information. This code will force the webdriver
     # wait until the wanted element is loaded.
@@ -53,7 +55,7 @@ def get_osebx_htmlfile(url: str, timeout: int=cng.DEFAULT_TIMEOUT, wait_target_c
             driver.quit()
             exit()
 
-    if verbose >= 1: print('Element located')
+    if verbose >= 2: print('Element located')
 
     page_src = driver.page_source
     driver.quit()
@@ -166,7 +168,7 @@ def scrape_osebx_html(quotes: str, returns: str, verbose: int=0, dump: bool=True
     df.last_ = to_numeric(df.last_, errors='coerce')
     df.buy = to_numeric(df.buy, errors='coerce')
     df.sell = to_numeric(df.sell, errors='coerce')
-    df.tradecount = to_numeric(df.tradecount, errors='corce')
+    df.tradecount = to_numeric(df.tradecount, errors='coerce')
 
     if dump:
         dump_assert(file)
@@ -217,30 +219,49 @@ def get_yahoofinancials_keystats(tickers, verbose: int=1, dump: bool=True, file:
     df.reset_index(inplace=True)
     if verbose >= 2: print('Returning dataframe')
 
-    if dump:
-        dump_assert(file)
-        df.to_csv(file)
+    # if dump:
+        # dump_assert(file)
+        # df.to_csv(file)
 
     return df
 
 def run_datapipeline():
 
+    df_osebx = None
+
     # get_osebx_htmlfile(url=cng.BORS_QUOTES_URL,
     #                    wait_target_class=cng.QUOTES_WAIT_TARGET_CLASS,
     #                    dump=True,
-    #                    file=cng.QUOTES_HTML_FILE)
+    #                    file=cng.QUOTES_HTML_FILE,
+    #                    verbose=2)
 
     # get_osebx_htmlfile(url=cng.BORS_RETURNS_URL,
     #                    wait_target_class=cng.RETURNS_WAIT_TARGET_CLASS,
     #                    dump=True,
-    #                    file=cng.RETURNS_HTML_FILE)
+    #                    file=cng.RETURNS_HTML_FILE,
+    #                    verbose=2)
 
-    scrape_osebx_html(quotes=cng.QUOTES_HTML_FILE, 
-                      returns=cng.RETURNS_HTML_FILE, 
-                      verbose=2, 
-                      dump=True, 
-                      file=cng.BORS_CSV_FILE)
+    # df_osebx = scrape_osebx_html(quotes=cng.QUOTES_HTML_FILE, 
+    #                   returns=cng.RETURNS_HTML_FILE, 
+    #                   verbose=2, 
+    #                   dump=True, 
+    #                   file=cng.BORS_CSV_FILE)
+
+    if df_osebx is None:
+        df_osebx = pd.read_csv(cng.BORS_CSV_FILE)
+
+    # get_yahoofinancials_keystats(
+    #     tickers=df_osebx.loc[0:5].ticker,
+    #     verbose=1,
+    #     dump=True,
+    #     file=cng.YAHOO_CSV_FILE
+    # )
 
 if __name__ == '__main__':
-    run_datapipeline()
+    # run_datapipeline()
+    ticker = 'DNB'
+    t = YahooFinancials(ticker+'.OL')
+    # t.get_key_statistics_data() returns a dict: TICKER.OL :{bla bla...}
+    # Extract values from dict to get nice format
+    featdict[ticker] = list(t.get_key_statistics_data().values())[0]
     pass
