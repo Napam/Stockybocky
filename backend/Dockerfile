@@ -4,7 +4,8 @@ FROM python:3.8.3-buster
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y dist-upgrade
 
 # Install Chromedriver for chromium
-RUN apt install chromium-driver=83.0.4103.116-1~deb10u2 -y
+# You may have to change the ~deb10u3 part in case it updates
+RUN apt install chromium-driver=83.0.4103.116-1~deb10u3 -y
 
 # Copy Python dependencies and install them
 COPY requirements.txt /tmp/

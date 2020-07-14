@@ -98,3 +98,17 @@ python borsscraper.py
 python borsscraper.py 
 python borsscraper.py 
 python borsscraper.py 
+apt
+apt show chromium
+apt show chromium-driver
+clear
+apt show chromium-driver -a
+clear
+ls
+exit
+ls
+python mock.py 
+cat mock.py 
+ls
+clear
+exit
