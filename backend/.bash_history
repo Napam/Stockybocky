@@ -112,3 +112,5 @@ cat mock.py
 ls
 clear
 exit
+ls
+exit
