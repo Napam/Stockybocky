@@ -4,7 +4,9 @@ import time
 import numpy as np 
 import pandas as pd 
 import sys
-import scrapeconfig as cng
+import config as cng
+from typing import List
+import math
 
 def print_html(html_test):
     '''To print html containers returned by beautifulsoup4'''
@@ -48,6 +50,23 @@ def join_threads(threads: list, verbose: int=0, blink_interval: int=cng.BLINK_IN
     [worker.join() for worker in threads]
     return
 
+def run_threads(threads: List[threading.Thread], chunksize: int=10, start_interval: float=0.01, 
+                chunk_interval: float=0):
+
+    n_chunks = math.ceil(len(threads) / chunksize)
+    for i in range(n_chunks):
+        sys.stdout.write(f'Chunk {i+1}/{n_chunks}: ')
+        sys.stdout.flush()
+
+        threadchunk = threads[i*chunksize:(i+1)*chunksize]
+        for thread in threadchunk:
+            thread.start()
+            time.sleep(start_interval)
+
+        join_threads(threadchunk)
+        time.sleep(chunk_interval)
+        print()
+
 def _dump_csv_handler(df: pd.DataFrame, file: str):
     assert type(df) == pd.DataFrame, 'Return value not of type pd.DataFrame'
     df.to_csv(file)
@@ -80,6 +99,9 @@ def dump(file: str, *dumper_args, **dumper_kwargs):
             return return_value
         return wrapper
     return decorator
+
+def get_feature_densities(df: pd.DataFrame):
+    return df.notna().sum(axis=0)/len(df)
 
 if __name__ == '__main__':
     def test_join_threads():

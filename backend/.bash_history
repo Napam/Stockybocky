@@ -48,7 +48,7 @@ RETURNS_HTML_FILE = 'OSEBX_Returns.html'
 QUOTES_HTML_FILE = 'OSEBX_Quotes.html'
 BORS_RETURNS_URL = "https://www.oslobors.no/ob_eng/markedsaktivitet/#/list/shares/return/ob/all/all/false"
 BORS_QUOTES_URL = "https://www.oslobors.no/ob_eng/markedsaktivitet/#/list/shares/quotelist/ob/all/all/false"
-FINALDATASET_FILENAME = 'OSEBX_dataset.csv'
+DATASET_FILE = 'OSEBX_dataset.csv'
 '''get_rawdata.py'''
 RETURNS_WAIT_TARGET_CLASS = 'LONG_NAME'
 QUOTES_WAIT_TARGET_CLASS = 'MARKET_CAP'
@@ -113,4 +113,7 @@ ls
 clear
 exit
 ls
+exit
+ls
+pwd
 exit

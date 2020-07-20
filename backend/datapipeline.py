@@ -3,12 +3,19 @@ Run this to get html files
 
 This file contains code to obtain html data from oslo bors and yahoo finance
 '''
+import argparse
+import re
 import threading
 import time
 from pprint import pprint
+from typing import List
+import sys
+import pathlib
+import os
 
 import numpy as np
 import pandas as pd
+import pypatconsole as ppc
 from bs4 import BeautifulSoup as bs
 from pandas import DataFrame, to_numeric
 from selenium import webdriver
@@ -16,17 +23,17 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
-from yahoofinancials import YahooFinancials
 
-import scrapeconfig as cng
-from utils import join_threads, print_html
+import config as cng
+import yfinance_hotfix as yf
+import utils
 
 def dump_assert(file: str):
     assert file is not None, 'File parameter must be specified when dump=True'
 
 def get_osebx_htmlfile(url: str, timeout: int=cng.DEFAULT_TIMEOUT, wait_target_class: str=None, 
                        verbose: int=1, dump: bool=True, file: str=None) -> str:
-    '''Loads html file using selenium'''
+    '''Load OSEBX html files using selenium'''
 
     if verbose >= 1: print(f'Gathering data from {url}')
 
@@ -68,15 +75,37 @@ def get_osebx_htmlfile(url: str, timeout: int=cng.DEFAULT_TIMEOUT, wait_target_c
 
     return page_src
 
-def scrape_osebx_html(quotes: str, returns: str, verbose: int=0, dump: bool=True, 
+def get_osebx_htmlfiles():
+    '''Get OSEBX HTML files'''
+    get_osebx_htmlfile(url=cng.BORS_QUOTES_URL,
+                       wait_target_class=cng.QUOTES_WAIT_TARGET_CLASS,
+                       dump=True,
+                       file=cng.QUOTES_HTML_FILE,
+                       verbose=2)
+
+    get_osebx_htmlfile(url=cng.BORS_RETURNS_URL,
+                       wait_target_class=cng.RETURNS_WAIT_TARGET_CLASS,
+                       dump=True,
+                       file=cng.RETURNS_HTML_FILE,
+                       verbose=2)
+
+def scrape_osebx_html(quotes: str=None, returns: str=None, verbose: int=0, dump: bool=True, 
                       file: str=None) -> pd.DataFrame:
     '''
-    Scrapes stocks from oslo bors website. HTML of websites of quotes and returns 
+    Scrape stocks from oslo bors HTML files. 
+    
+    HTML of websites of quotes and returns 
     should be located in same folder this file. 
 
     quotes: https://www.oslobors.no/ob_eng/markedsaktivitet/#/list/shares/quotelist/ob/all/all/false
     returns: https://www.oslobors.no/ob_eng/markedsaktivitet/#/list/shares/return/ob/all/all/false
     '''
+    if quotes is None:
+        quotes = cng.QUOTES_HTML_FILE
+    
+    if returns is None:
+        returns = cng.RETURNS_HTML_FILE
+    
     with open(quotes) as html_source:
         soup_quotes = bs(html_source, 'html.parser')
 
@@ -172,96 +201,110 @@ def scrape_osebx_html(quotes: str, returns: str, verbose: int=0, dump: bool=True
 
     if dump:
         dump_assert(file)
-        df.to_csv(file)
+        df.to_csv(file, index=False)
 
     return df
 
 def yahoo_querier_(ticker: str, featdict: dict) -> None:
     '''
     Adds ticker information to dictionary inplace
+
+    At the time of writing this code, Yahoo is acting retarded.
+    For some reason MOWI, NEL etc and whatnot not properly indexed on Yahoo Finance.
+    The Python scraper should work fine. 
     '''
-    print(f'{ticker} ', end='')
-    t = YahooFinancials(ticker+'.OL')
-    # t.get_key_statistics_data() returns a dict: TICKER.OL :{bla bla...}
-    # Extract values from dict to get nice format
-    featdict[ticker] = list(t.get_key_statistics_data().values())[0]
+    ticker_string = ticker.strip()+'.OL'
+    ticker_string = re.sub('\s+','-',ticker_string)
+    t = yf.Ticker(ticker_string)
+    featdict[ticker] = t.info
+
+    sys.stdout.write(f'{ticker_string} ')
+    sys.stdout.flush()
     return
 
-def get_yahoofinancials_keystats(tickers, verbose: int=1, dump: bool=True, file: str=None) -> pd.DataFrame:
+def get_yahoo_stats(tickers=None, verbose: int=1, dump: bool=True, file: str=None) -> pd.DataFrame:
+    '''
+    Get Yahoo stuff
+    '''
+    if tickers is None:
+        tickers = pd.read_csv(cng.BORS_CSV_FILE).ticker
+
     featdict = dict()
 
     threads = [threading.Thread(target=yahoo_querier_, args=(ticker, featdict)) for ticker in tickers]
 
     if verbose >= 2: print('Starting threads\n')
 
-    # [th.start() for th in threads]
-
-    # Accessing Yahoo too much at once causes it to stop for some reason
-    # Waiting a little before each thread starts helps sometimes
-    for i, th in enumerate(threads):
-        th.start()
-        time.sleep(0.05)
-
-        if verbose >= 1:
-            if not i % 10:
-                print()
-
-    if verbose >= 2: print('\nWaiting for threads\n')
-
-    join_threads(threads, verbose=verbose)
-    if verbose >= 1: print()
-
-    [th.join() for th in threads]
+    utils.run_threads(
+        threads=threads,
+        chunksize=20,
+        start_interval=0.01,
+        chunk_interval=1)
 
     if verbose >= 2: print('Creating dataframe')
     df = pd.DataFrame(featdict).T
     df.index.name = 'ticker'
     df.reset_index(inplace=True)
+
+    if dump:
+        if verbose >= 2: print('Dumping DataFrame')
+        dump_assert(file)
+        df.to_csv(file, index=False)
+
     if verbose >= 2: print('Returning dataframe')
-
-    # if dump:
-        # dump_assert(file)
-        # df.to_csv(file)
-
     return df
 
-def run_datapipeline():
-
-    df_osebx = None
-
-    # get_osebx_htmlfile(url=cng.BORS_QUOTES_URL,
-    #                    wait_target_class=cng.QUOTES_WAIT_TARGET_CLASS,
-    #                    dump=True,
-    #                    file=cng.QUOTES_HTML_FILE,
-    #                    verbose=2)
-
-    # get_osebx_htmlfile(url=cng.BORS_RETURNS_URL,
-    #                    wait_target_class=cng.RETURNS_WAIT_TARGET_CLASS,
-    #                    dump=True,
-    #                    file=cng.RETURNS_HTML_FILE,
-    #                    verbose=2)
-
-    # df_osebx = scrape_osebx_html(quotes=cng.QUOTES_HTML_FILE, 
-    #                   returns=cng.RETURNS_HTML_FILE, 
-    #                   verbose=2, 
-    #                   dump=True, 
-    #                   file=cng.BORS_CSV_FILE)
-
+def combine_osebx_yahoo(df_osebx: pd.DataFrame=None, df_yahoo: pd.DataFrame=None):
+    '''
+    Combine OSEBX and Yahoo datasets
+    '''
     if df_osebx is None:
         df_osebx = pd.read_csv(cng.BORS_CSV_FILE)
 
-    # get_yahoofinancials_keystats(
-    #     tickers=df_osebx.loc[0:5].ticker,
-    #     verbose=1,
-    #     dump=True,
-    #     file=cng.YAHOO_CSV_FILE
-    # )
+    if df_yahoo is None:
+        df_yahoo = pd.read_csv(cng.YAHOO_CSV_FILE)
+
+    df_combined = pd.merge(df_osebx, df_yahoo, on=cng.MERGE_DFS_ON, suffixes=('_osebx', '_yahoo'))
+    df_combined.set_index(cng.MERGE_DFS_ON, inplace=True)
+    df_combined.to_csv(cng.DATASET_FILE)
+
+def make_dirs():
+    pathlib.Path(cng.DATA_DATE_DIR).mkdir(parents=True, exist_ok=True)
+
+def run_datapipeline():
+    '''
+    Run whole datapipeline
+    '''
+    make_dirs()
+
+    get_osebx_htmlfiles()
+
+    df_osebx = scrape_osebx_html(quotes=cng.QUOTES_HTML_FILE, 
+                                 returns=cng.RETURNS_HTML_FILE, 
+                                 verbose=2, 
+                                 dump=True, 
+                                 file=cng.BORS_CSV_FILE)
+    tickers = df_osebx.ticker
+
+    df_yahoo = get_yahoo_stats(tickers=tickers, 
+                               verbose=2, 
+                               dump=True,
+                               file=cng.YAHOO_CSV_FILE)
+
+    combine_osebx_yahoo()
+    
 
 if __name__ == '__main__':
-    # run_datapipeline()
-    ticker = 'DNB'
-    t = YahooFinancials(ticker+'.OL')
-    # t.get_key_statistics_data() returns a dict: TICKER.OL :{bla bla...}
-    # Extract values from dict to get nice format
-    featdict[ticker] = list(t.get_key_statistics_data().values())[0]
-    pass
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--interactive', help='Run in interactive mode', action='store_true')
+    args = parser.parse_args()
+
+    if args.interactive:
+        ppc.menu([
+            get_osebx_htmlfiles,
+            scrape_osebx_html,
+            get_yahoo_stats,
+            run_datapipeline,
+        ], main=True, blank_proceedure='pass')
+    else:
+        run_datapipeline()

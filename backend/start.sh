@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker start -i stockyback-cntr
+docker start -i stockyflask-cntr
