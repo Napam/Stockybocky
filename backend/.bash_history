@@ -55,7 +55,7 @@ QUOTES_WAIT_TARGET_CLASS = 'MARKET_CAP'
 DEFAULT_BROWSER = 'chrome'
 DEFAULT_TIMEOUT = 10
 '''datawrangle.py'''
-SELECTED_FEATURES = [ 
+SELECTED_FEATURES_YAHOO = [ 
     'ticker',
     'bookValue',
     'enterpriseValue',

@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+        stoink-service:
+                image: stockyflask:latest
+                command: sh -c "python api.py"
+                volumes:
+                        - ./backend:/app
+                ports:
+                        6901:80
+        website:
+                image: stockyreact:latest
+                command: sh -c "yarn start"
+                volumes:
+                        - ./frontend/reactapp:/app
+                ports:
+                        - 6901:80
+                stdin_open: true
+                depends_on:
+                        - number-service

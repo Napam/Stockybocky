@@ -9,7 +9,7 @@ __STR_DATE_TODAY = dt.date.today().strftime("%Y-%m-%d")
 '''General'''
 DATA_DIR = 'data'
 DATA_DATE_DIR = os.path.join(DATA_DIR, __STR_DATE_TODAY)
-BORS_CSV_FILE = os.path.join(DATA_DATE_DIR, 'borsdata.csv')
+BORS_CSV_FILE = os.path.join(DATA_DATE_DIR, 'osebxdata.csv')
 YAHOO_CSV_FILE = os.path.join(DATA_DATE_DIR, 'yahoodata.csv')
 RETURNS_HTML_FILE = os.path.join(DATA_DATE_DIR, 'OSEBX_Returns.html')
 QUOTES_HTML_FILE = os.path.join(DATA_DATE_DIR, 'OSEBX_Quotes.html')
@@ -26,7 +26,7 @@ DEFAULT_TIMEOUT = 10
 '''outlier.py'''
 
 # Features used in ML algorithms
-SELECTED_FEATURES = [
+SELECTED_FEATURES_YAHOO = [
     'fullTimeEmployees',
     'twoHundredDayAverage',
     'trailingAnnualDividendYield',
@@ -41,7 +41,6 @@ SELECTED_FEATURES = [
     'beta',
     'regularMarketDayLow',
     'priceHint',
-    'currency',
     'trailingPE',
     'regularMarketVolume',
     'averageVolume',
@@ -56,7 +55,6 @@ SELECTED_FEATURES = [
     'dayHigh',
     'enterpriseToRevenue',
     'profitMargins',
-    '52WeekChange',
     'forwardEps',
     'sharesOutstanding',
     'bookValue',
@@ -71,6 +69,22 @@ SELECTED_FEATURES = [
     'floatShares',
     'enterpriseValue',
 ]
+
+SELECTED_FEATURES_OSEBX = [
+    'sector_osebx',
+    'last_',
+    'buy',
+    'sell',
+    'tradecount',
+    'marketcap',
+    'profit_today',
+    'profit_1wk',
+    'profit_1month',
+    'profit_ytd',
+    'profit_1yr'
+]
+
+SELECTED_FEATURES = SELECTED_FEATURES_OSEBX + SELECTED_FEATURES_YAHOO
 
 '''utils.py'''
 BLINK_INTERVAL = 1
