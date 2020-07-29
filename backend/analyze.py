@@ -46,14 +46,51 @@ class StockOutlierAnalyzer:
         self.scores = self.detector.score_samples(self.dfx)
 
         dfx_ = self.dfx.copy()
-        dfx_.insert(0, 'score', self.scores)
+        dfx_.insert(0, 'score', -self.scores)
         return dfx_
 
     def get_representations(self):
-        pca = PCA(n_components=2)
+        pca = PCA(n_components=3)
         X = pca.fit_transform(self.dfx)
         
-        fig = px.scatter(pd.DataFrame(X), x=0, y=1, title='LOL!')
+        fig = px.scatter_3d(
+            data_frame=pd.DataFrame(X), 
+            x=0, 
+            y=1,
+            z=2, 
+            size=np.log(self.dfx['marketcap']),
+            color=-self.scores,
+            hover_name=self.df_raw['ticker'],
+            width=630,
+            height=475,
+            color_continuous_scale='viridis'
+        )
+
+        # print(self.df_raw)
+
+        fig.update_layout(showlegend=False)
+
+        return fig
+
+    def get_score_hist(self):
+        fig = px.histogram(x=-self.scores, nbins=100, marginal='rug')
+
+        
+
+        fig.add_shape(
+            type="line",
+            xref="paper",
+            yref="paper",
+            x0=0.5,
+            y0=0,
+            x1=0.5,
+            y1=1,
+            line=dict(
+                color='gold',
+                width=3,
+            ),
+        )
+        return fig
 
     def run(self):
         self.preprocess()
@@ -63,3 +100,4 @@ class StockOutlierAnalyzer:
 if __name__ == '__main__':
     anal = StockOutlierAnalyzer()
     anal.run()
+    # print(anal.selected_features)

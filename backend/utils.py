@@ -116,4 +116,10 @@ if __name__ == '__main__':
         [worker.start() for worker in workers]
         join_threads(workers, verbose=True)
 
-    test_join_threads()
+    # test_join_threads()
+
+    def feat_dens():
+        df = pd.read_csv(cng.DATASET_FILE)
+        with pd.option_context('display.max_rows', None):
+            print(get_feature_densities(df[cng.SELECTED_FEATURES]).sort_values())
+    feat_dens()
