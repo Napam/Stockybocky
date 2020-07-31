@@ -227,7 +227,7 @@ def get_yahoo_stats(tickers=None, verbose: int=1, dump: bool=True, file: str=Non
     Get Yahoo stuff
     '''
     if tickers is None:
-        tickers = pd.read_csv(cng.BORS_CSV_FILE).ticker
+        tickers = pd.read_csv(cng.BORS_CSV_DATE_FILE).ticker
 
     featdict = dict()
 
@@ -259,14 +259,14 @@ def combine_osebx_yahoo(df_osebx: pd.DataFrame=None, df_yahoo: pd.DataFrame=None
     Combine OSEBX and Yahoo datasets
     '''
     if df_osebx is None:
-        df_osebx = pd.read_csv(cng.BORS_CSV_FILE)
+        df_osebx = pd.read_csv(cng.BORS_CSV_DATE_FILE)
 
     if df_yahoo is None:
-        df_yahoo = pd.read_csv(cng.YAHOO_CSV_FILE)
+        df_yahoo = pd.read_csv(cng.YAHOO_CSV_DATE_FILE)
 
     df_combined = pd.merge(df_osebx, df_yahoo, on=cng.MERGE_DFS_ON, suffixes=('_osebx', '_yahoo'))
     df_combined.set_index(cng.MERGE_DFS_ON, inplace=True)
-    df_combined.to_csv(cng.DATASET_FILE)
+    df_combined.to_csv(cng.DATASET_DATE_FILE)
 
 def make_dirs():
     pathlib.Path(cng.DATA_DATE_DIR).mkdir(parents=True, exist_ok=True)
@@ -279,17 +279,17 @@ def run_datapipeline():
 
     get_osebx_htmlfiles()
 
-    df_osebx = scrape_osebx_html(quotes=cng.QUOTES_HTML_FILE, 
-                                 returns=cng.RETURNS_HTML_FILE, 
+    df_osebx = scrape_osebx_html(quotes=cng.QUOTES_HTML_DATE_FILE, 
+                                 returns=cng.RETURNS_HTML_DATE_FILE, 
                                  verbose=2, 
                                  dump=True, 
-                                 file=cng.BORS_CSV_FILE)
+                                 file=cng.BORS_CSV_DATE_FILE)
     tickers = df_osebx.ticker
 
     df_yahoo = get_yahoo_stats(tickers=tickers, 
                                verbose=2, 
                                dump=True,
-                               file=cng.YAHOO_CSV_FILE)
+                               file=cng.YAHOO_CSV_DATE_FILE)
 
     combine_osebx_yahoo()
     

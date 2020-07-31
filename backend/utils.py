@@ -7,6 +7,8 @@ import sys
 import config as cng
 from typing import List
 import math
+import os
+import aniso8601
 
 def print_html(html_test):
     '''To print html containers returned by beautifulsoup4'''
@@ -52,7 +54,10 @@ def join_threads(threads: list, verbose: int=0, blink_interval: int=cng.BLINK_IN
 
 def run_threads(threads: List[threading.Thread], chunksize: int=10, start_interval: float=0.01, 
                 chunk_interval: float=0):
-
+    '''
+    Given a list of threads, start threads in chunks. Good for webscraping so website dont get 
+    mad. 
+    '''
     n_chunks = math.ceil(len(threads) / chunksize)
     for i in range(n_chunks):
         sys.stdout.write(f'Chunk {i+1}/{n_chunks}: ')
@@ -103,6 +108,14 @@ def dump(file: str, *dumper_args, **dumper_kwargs):
 def get_feature_densities(df: pd.DataFrame):
     return df.notna().sum(axis=0)/len(df)
 
+def get_latest_dataset():
+    '''
+    Finds directory containing latest dataset
+    '''
+    dates = os.listdir(cng.DATA_DIR)
+    dates = sorted([aniso8601.parse_date(date) for date in dates])
+    return os.path.join(cng.DATA_DIR, str(dates[-1]), cng.DATASET_FILE)
+
 if __name__ == '__main__':
     def test_join_threads():
         '''Test join_threads using dummy threads'''
@@ -119,7 +132,13 @@ if __name__ == '__main__':
     # test_join_threads()
 
     def feat_dens():
-        df = pd.read_csv(cng.DATASET_FILE)
+        df = pd.read_csv(cng.DATASET_DATE_FILE)
         with pd.option_context('display.max_rows', None):
             print(get_feature_densities(df[cng.SELECTED_FEATURES]).sort_values())
     feat_dens()
+    
+    def cat_dog():
+        df = pd.read_csv(cng.DATASET_DATE_FILE)
+        print(df)
+
+    cat_dog()
