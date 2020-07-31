@@ -92,7 +92,7 @@ class StockOutlierAnalyzer:
         common_viz_kwargs = dict(n_components=3, random_state=cng.SEED)
 
         vizgroup = [
-            MDS(max_iter=100, n_init=1, n_jobs=-1, **common_viz_kwargs), 
+            MDS(max_iter=200, n_init=4, n_jobs=-1, **common_viz_kwargs), 
             PCA(**common_viz_kwargs), 
             LocallyLinearEmbedding(n_neighbors=69, method='modified', **common_viz_kwargs), 
             Isomap(n_neighbors=30, n_components=3)
@@ -122,9 +122,9 @@ class StockOutlierAnalyzer:
 
     def get_score_hist(self):
 
-        x = np.quantile(-self.scores, 0.85)
+        x = np.quantile(-self.scores, 0.90)
 
-        fig = px.histogram(x=-self.scores, nbins=100, marginal='rug', title=f'85% quantile at {x:.4f}')
+        fig = px.histogram(x=-self.scores, nbins=100, marginal='rug', title=f'90% quantile at {x:.4f}')
 
         fig.add_shape(
             type="line",

@@ -135,10 +135,28 @@ if __name__ == '__main__':
         df = pd.read_csv(cng.DATASET_DATE_FILE)
         with pd.option_context('display.max_rows', None):
             print(get_feature_densities(df[cng.SELECTED_FEATURES]).sort_values())
-    feat_dens()
     
+    # feat_dens()
+
     def cat_dog():
         df = pd.read_csv(cng.DATASET_DATE_FILE)
-        print(df)
+        wanted = [
+            'sector_osebx', 
+            'priceToBook',
+            'trailingPE',
+            'forwardPE',
+            'averageDailyVolume10Day',
+            'averageVolume',
+            'profit_today', 
+            'profit_1wk', 
+            'profit_1month', 
+            'profit_ytd',
+        ]
+        
+        df_ = df[wanted]
+
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+            print(df_.groupby(by='sector_osebx', group_keys=False).mean())
+            print(df_.groupby(by='sector_osebx', group_keys=False).std())
 
     cat_dog()

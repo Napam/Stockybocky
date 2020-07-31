@@ -16,13 +16,33 @@ taberu2.insert(0, 'sector', a.df_raw.sector_osebx)
 taberu2.insert(0, 'ticker', a.df_raw.ticker)
 taberu2.insert(0, 'name', a.df_raw.name)
 taberu2 = taberu2.sort_values('score')[::-1]
+taberu2 = taberu2.round(4)
 figs = a.get_representations()
 hist = a.get_score_hist()
 
+wanted = [
+            'sector', 
+            'priceToBook',
+            'trailingPE',
+            'forwardPE',
+            'averageDailyVolume10Day',
+            'averageVolume',
+            'profit_today', 
+            'profit_1wk', 
+            'profit_1month', 
+            'profit_ytd',
+]
+
+df_sector_means = taberu2[wanted].groupby(by='sector', group_keys=False).mean().reset_index()
+df_sector_stds = taberu2[wanted].groupby(by='sector', group_keys=False).std().reset_index()
+
+print('Loaded backend')
 
 ##########################################################################################################################
 ##########################################################################################################################
 app.layout = html.Div([
+
+
 
 html.H1('Stockybocky', id='bockytitle'),
 
@@ -65,9 +85,9 @@ html.Div([
     html.Div([dcc.Graph(id='histo', figure=hist)], id='histogram-div', className='pretty_container'),
 
     html.Div([
-        dash_table.DataTable(columns=[{"name": i, "id": i} for i in taberu2.columns], 
-        data=taberu2.to_dict('records'), style_table={'overflow':'scroll', 'height':'400px'}, 
-        page_size=20)], 
+        dash_table.DataTable(columns=[{"name": i, "id": i} for i in df_sector_means.columns], 
+        data=df_sector_means.to_dict('records'), style_table={'overflow':'scroll', 'height':'400px'}, 
+        page_size=40)], 
     id='sectorinfo-div', className='pretty_container')
 
 ], id='histogram-and-table'),
@@ -76,11 +96,11 @@ html.Br(),
 
 html.Div([
     dash_table.DataTable(columns=[{"name": i, "id": i} for i in taberu2.columns], 
-    data=taberu2.to_dict('records'), style_table={'overflow':'scroll', 'height':'400px'}, page_size=20)
+    data=taberu2.to_dict('records'), style_table={'overflow':'scroll', 'height':'600px'}, page_size=20)
 ], className='pretty_container'),
 
-])
 
+])
 ##########################################################################################################################
 ##########################################################################################################################
 
