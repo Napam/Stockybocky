@@ -41,26 +41,26 @@ def get_visualizations(X: np.ndarray, visualizers: list, verbose: int=0) -> dict
     return transforms
 
 class StockOutlierAnalyzer:
-    def __init__(self, csv_file: str=None, selected_features: list=None):
+    def __init__(self, csv_file: str=None):
         if csv_file is None:
             # csv_file = cng.DATASET_FILE
             csv_file = utils.get_latest_dataset()
 
-        self.selected_features = selected_features
+        self.df_raw: pd.DataFrame = pd.read_csv(csv_file)        
+        self.sectorencoder = None
 
-        self.df_raw: pd.DataFrame = pd.read_csv(csv_file)
-        self.df: pd.DataFrame = self.df_raw.copy()
+    def preprocess(self, selected_features: list=None) -> None:
         
-        self.fitted = False
-
-    def preprocess(self) -> None:
+        self.selected_features = selected_features
+        
         if self.selected_features is None:
             self.selected_features = cng.SELECTED_FEATURES
-
+        
         # Note: the dataset consists of data from both Oslo bors' website and yahoo financials. 
         # the two sources may have redundant featutres. Oslo bors' feature will be tagged with
         # '_osebx', and '_yahoo' for yahoo features
         # It is expected that 'sector_osebx' is a feature
+        self.df: pd.DataFrame = self.df_raw.copy()
         self.df = self.df[self.selected_features]
         
         # Encode string labels to numerical
@@ -68,16 +68,14 @@ class StockOutlierAnalyzer:
             self.sectorencoder = LabelEncoder()
             self.df['sector_osebx'] = self.sectorencoder.fit_transform(self.df['sector_osebx'])
         except KeyError as e:
-            pass
+            self.sectorencoder = None
 
         self.dfx = self.df.fillna(0)
 
     def fit_and_score(self) -> pd.DataFrame:
-        # assert self.X is not None, 'Design matrix unavailable, have you called preprocess()?'
         self.detector = IsolationForest() 
         
-        if not self.fitted:
-            self.detector.fit(self.dfx)
+        self.detector.fit(self.dfx)
     
         self.scores = self.detector.score_samples(self.dfx)
 
@@ -85,35 +83,43 @@ class StockOutlierAnalyzer:
         dfx_.insert(0, 'score', -self.scores)
         return dfx_
 
-    def get_representations(self):
+    def get_representations(self, color: str=None):
         X = self.dfx.values 
         minmaxscaler = MinMaxScaler().fit(X)
         X_minmax = minmaxscaler.transform(X)
         common_viz_kwargs = dict(n_components=3, random_state=cng.SEED)
 
         vizgroup = [
-            MDS(max_iter=200, n_init=4, n_jobs=-1, **common_viz_kwargs), 
+            MDS(max_iter=100, n_init=2, n_jobs=-1, **common_viz_kwargs), 
             PCA(**common_viz_kwargs), 
             LocallyLinearEmbedding(n_neighbors=69, method='modified', **common_viz_kwargs), 
             Isomap(n_neighbors=30, n_components=3)
         ]
 
-        vizzes = get_visualizations(X_minmax, vizgroup, verbose=1)
-        
+        self.vizzes = get_visualizations(X_minmax, vizgroup, verbose=1)
+
+    def get_plots(self, color) -> dict:
+        if color is None:
+            color = -self.scores
+        elif color == 'score':
+            color = -self.scores
+        else: 
+            color = self.df_raw[color]
+
         pxkwargs = dict(
             x=0, 
             y=1,
             z=2, 
-            size=np.log(self.df_raw['marketcap']),
-            color=-self.scores,
-            # color=self.df_raw['sector_osebx'],
+            size=np.log(self.df_raw['marketcap']/np.log(2)),
+            color=color,
             hover_name=self.df_raw['ticker'],
             width=625,
             height=468,
             color_continuous_scale='viridis',
         )
 
-        figs = {name:px.scatter_3d(pd.DataFrame(X_), title=name, **pxkwargs) for name, X_ in vizzes.items()}
+        figs = {name:px.scatter_3d(pd.DataFrame(X_), title=name, **pxkwargs) for name, X_ in 
+                self.vizzes.items()}
 
         for fig in figs.values():
             fig.update_layout(showlegend=False)

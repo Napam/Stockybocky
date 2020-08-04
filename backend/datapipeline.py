@@ -80,13 +80,13 @@ def get_osebx_htmlfiles():
     get_osebx_htmlfile(url=cng.BORS_QUOTES_URL,
                        wait_target_class=cng.QUOTES_WAIT_TARGET_CLASS,
                        dump=True,
-                       file=cng.QUOTES_HTML_FILE,
+                       file=cng.QUOTES_HTML_DATE_FILE,
                        verbose=2)
 
     get_osebx_htmlfile(url=cng.BORS_RETURNS_URL,
                        wait_target_class=cng.RETURNS_WAIT_TARGET_CLASS,
                        dump=True,
-                       file=cng.RETURNS_HTML_FILE,
+                       file=cng.RETURNS_HTML_DATE_FILE,
                        verbose=2)
 
 def scrape_osebx_html(quotes: str=None, returns: str=None, verbose: int=0, dump: bool=True, 

@@ -103,9 +103,7 @@ SELECTED_FEATURES = sorted([
     'profit_1yr',
     'fullTimeEmployees',
     'averageDailyVolume10Day',
-    'fiftyDayAverage',
     'averageVolume10days',
-    'exDividendDate',
     'beta',
     'priceHint',
     'trailingPE',
@@ -128,7 +126,6 @@ SELECTED_FEATURES = sorted([
     'nextFiscalYearEnd',
     'mostRecentQuarter',
     'floatShares',
-    'enterpriseValue',
 ])
 
 '''utils.py'''
