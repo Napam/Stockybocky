@@ -3,18 +3,13 @@
 body {
     font-family: Lato, sans-serif;
     background-color: #f2f2f2;
+    margin: 0;
+    /* margin-top: 2%; */
+}
+
+#page-content {
     margin: 5%;
-    margin-top: 2%;
-}
-
-#bockytitle {
-    text-align: center;
-    font-size: 69px;
-}
-
-#motto {
-    text-align: center;
-    font-size: 30px;
+    margin-top: 0;
 }
 
 #update-feats-button {
@@ -60,17 +55,58 @@ body {
     width: 46.5%;
 }
 
+#tabs {
+    display: flex;
+    border-top: 1px solid lightgrey;
+    flex-direction: row;
+    background-color: white;
+    text-align: center;
+}
+
+#tabs a {
+    user-select: none;
+}
+
+#tabs > a:first-child {
+    width: 20%;
+    border-right: 1px solid lightgrey;
+    margin-left: 6%;
+}
+
+#tabs > a:last-child {
+    width: 20%;
+}
+
 .row {
     display: flex;
     flex-direction: row;
     width: inherit;
 }
 
+.banner {
+    margin: 0px;
+    width: 100%;
+    color: #333333;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+}
+
+#app-title {
+    font-size: 2.25rem;
+    padding-left: 6%;
+}
+
+#motto {
+    margin-top: 40px;
+    font-family: "Asap", sans-serif;
+}
+
 .pretty_container {
-    border-radius: 5px;
+    border-radius: 3px;
     background-color: #f9f9f9;
     margin: 15px;
     padding: 10px;
     position: relative;
-    box-shadow: 4px 4px 4px lightgrey;
+    box-shadow: 2px 2px 2px lightgrey;
 }
