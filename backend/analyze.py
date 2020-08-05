@@ -45,6 +45,7 @@ class StockOutlierAnalyzer:
         if csv_file is None:
             # csv_file = cng.DATASET_FILE
             csv_file = utils.get_latest_dataset()
+            print(csv_file)
 
         self.df_raw: pd.DataFrame = pd.read_csv(csv_file)        
         self.sectorencoder = None
@@ -90,7 +91,7 @@ class StockOutlierAnalyzer:
         common_viz_kwargs = dict(n_components=3, random_state=cng.SEED)
 
         vizgroup = [
-            MDS(max_iter=100, n_init=2, n_jobs=-1, **common_viz_kwargs), 
+            MDS(max_iter=200, n_init=2, n_jobs=-1, **common_viz_kwargs), 
             PCA(**common_viz_kwargs), 
             LocallyLinearEmbedding(n_neighbors=69, method='modified', **common_viz_kwargs), 
             Isomap(n_neighbors=30, n_components=3)
@@ -98,19 +99,33 @@ class StockOutlierAnalyzer:
 
         self.vizzes = get_visualizations(X_minmax, vizgroup, verbose=1)
 
-    def get_plots(self, color) -> dict:
+    def get_plots(self, color: str=None, size: str=None) -> dict:
         if color is None:
             color = -self.scores
         elif color == 'score':
             color = -self.scores
         else: 
             color = self.df_raw[color]
+        
+        if size is None:
+            size = np.log(self.df_raw['marketcap']/np.log(2))
+        elif size == 'score':
+            size = -self.scores
+        elif size == 'marketcap':
+            size = np.log(self.df_raw['marketcap']/np.log(2))
+        else: 
+            size = self.df_raw[size]
+
+        size = np.nan_to_num(size)
+        size = size/np.max(size)
+        size = np.clip(size, 0.0001, 1)
+        size = size*1000
 
         pxkwargs = dict(
             x=0, 
             y=1,
             z=2, 
-            size=np.log(self.df_raw['marketcap']/np.log(2)),
+            size=size,
             color=color,
             hover_name=self.df_raw['ticker'],
             width=625,

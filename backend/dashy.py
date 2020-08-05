@@ -7,8 +7,8 @@ import analyze as anal
 import config as cng
 from dash.exceptions import PreventUpdate
 
-app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
-
+app = dash.Dash(__name__, meta_tags=[{'name': 'viewport', 'content': 'width=device-width'}])
+cache = {}
 a = anal.StockOutlierAnalyzer()
 
 wanted = [
@@ -34,7 +34,10 @@ print(f'Loading backend at {__name__}')
 ##########################################################################################################################
 app.layout = html.Div([
 
-dcc.Store(id='storage', storage_type='session', data={'markercolor':'score'}),
+dcc.Store(id='storage', storage_type='session', data={
+    'markercolor':'score',
+    'markersize':'marketcap',
+    'at_start':False}),
 
 html.H1('$tockybocky', id='bockytitle'),
 
@@ -53,28 +56,28 @@ html.Div([
                    'border':'1px solid rgb(180,180,180)', 
                    'border-radius':'3px'},
             id='feature-selector',
-            persistence=True),
+            persistence=False),
 
         html.Button('Update plots', style={'width':'100%', 'height':'30px'}, 
                     id='update-plots-button', n_clicks=0),
         
         dcc.Dropdown(
-            options=[{'label':feat, 'value':feat} for feat in cng.SELECTED_FEATURES+['score']],
+            options=[{'label':feat, 'value':feat} for feat in cng.FEATURES+['score']],
             value='score',
             style={'border':'1px solid rgb(180,180,180)', 
                    'border-radius':'3px'},
             id='plot-color-selector',
             placeholder='Marker color',
-            persistence=True),
+            persistence=False),
         
         dcc.Dropdown(
-            options=[{'label':feat, 'value':feat} for feat in cng.SELECTED_FEATURES+['score']],
-            value='score',
+            options=[{'label':feat, 'value':feat} for feat in cng.FEATURES+['score']],
+            value='marketcap',
             style={'border':'1px solid rgb(180,180,180)', 
                    'border-radius':'3px',},
             id='plot-size-selector',
             placeholder='Marker size',
-            persistence=True),
+            persistence=False),
     
     ], id='features', className='pretty_container'),
 
@@ -101,8 +104,68 @@ html.Div(id='dummydiv', style={'display':'None'})
 ##########################################################################################################################
 ##########################################################################################################################
 
-def get_graphgrid_html(storage):
-    figs = a.get_plots(storage['markercolor'])
+@app.callback(
+    output=[
+        Output('graphs-div', 'children'),
+        Output('histo', 'figure'),
+        Output('bigtable-div', 'children'),],
+    inputs=[
+        Input('update-feats-button', 'n_clicks'),
+        Input('update-plots-button', 'n_clicks')],
+    state=[
+        State('feature-selector', 'value'), 
+        State('plot-color-selector', 'value'), 
+        State('plot-size-selector', 'value'), 
+        State('storage', 'data')])
+def update_features(n_clicks_feats: int, n_clicks_plots: int, features: list, color: str, size: str, 
+                    storage: dict):
+    ctx = dash.callback_context
+    prop_id = get_prop_id()
+
+    if (prop_id == 'update-feats-button') or (prop_id is None):
+        a.preprocess(features)
+        dfx = a.fit_and_score()
+
+        dfx.insert(0, 'sector', a.df_raw.sector_osebx)
+        dfx.insert(0, 'ticker', a.df_raw.ticker)
+        dfx.insert(0, 'name', a.df_raw.name)
+        dfx = dfx.sort_values('score')[::-1]
+        dfx = dfx.round(4)
+        a.get_representations()
+
+        cache['scorehist'] = a.get_score_hist()
+
+        cache['bigtable'] = dash_table.DataTable(
+            columns=[{'name': i, 'id': i} for i in dfx.columns], 
+            data=dfx.to_dict('records'), style_table={'overflow':'scroll', 'height':'700px'}, 
+            page_size=20, 
+            id='bigtable',
+            filter_action='native',
+            sort_action='native',
+            sort_mode='single',
+        )
+
+    elif prop_id == 'update-plots-button':
+        storage['markercolor'] = color
+        storage['markersize'] = size
+    else:
+        raise ValueError('Weird stuff happening lol')
+
+    graphgrid = get_graphgrid_html(storage['markercolor'], storage['markersize'])
+
+    return graphgrid, cache['scorehist'], cache['bigtable']
+
+def get_prop_id():
+    ctx = dash.callback_context
+    prop_id = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if prop_id == '':
+        return None
+
+    return prop_id
+
+def get_graphgrid_html(color, size):
+    figs = a.get_plots(color, size)
 
     graphgrid = [
         html.Div([
@@ -117,57 +180,6 @@ def get_graphgrid_html(storage):
     ]
 
     return graphgrid
-
-
-@app.callback(
-    output=[
-        Output('graphs-div', 'children'),
-        Output('histo', 'figure'),
-        Output('bigtable-div', 'children'),],
-    inputs=[
-        Input('update-feats-button', 'n_clicks')],
-    state=[
-        State('feature-selector', 'value'), 
-        State('storage', 'data')])
-def update_features(n_clicks: int, features: list, storage: dict):
-    a.preprocess(features)
-    dfx = a.fit_and_score()
-
-    dfx.insert(0, 'sector', a.df_raw.sector_osebx)
-    dfx.insert(0, 'ticker', a.df_raw.ticker)
-    dfx.insert(0, 'name', a.df_raw.name)
-    dfx = dfx.sort_values('score')[::-1]
-    dfx = dfx.round(4)
-    a.get_representations()
-
-    graphgrid = get_graphgrid_html(storage)
-
-    histobisto = a.get_score_hist()
-
-    table = dash_table.DataTable(
-        columns=[{"name": i, "id": i} for i in dfx.columns], 
-        data=dfx.to_dict('records'), style_table={'overflow':'scroll', 'height':'420px'}, 
-        page_size=20, 
-        id='bigtable',
-    )
-
-    return graphgrid, histobisto, table
-    
-@app.callback(
-    output=[Output('storage', 'data')],
-    inputs=[Input('update-plots-button', 'n_clicks')],
-    state=[State('plot-color-selector', 'value'), 
-           State('plot-size-selector', 'value'),
-           State('storage', 'data')])
-def update_plots(n_clicks: int, color: str, size: str, data: dict):
-    if n_clicks is None:
-        raise PreventUpdate
-
-    data['markercolor'] = color
-    data['markersize'] = size
-    print(data)
-
-    return (data,)
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', port=80, debug=True)
