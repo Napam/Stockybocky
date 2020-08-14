@@ -3,6 +3,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 import common as cmn
 from apps import multidash, singledash
+from common import server
 
 #####################################################################################################################
 #####################################################################################################################
