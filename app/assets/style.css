@@ -1,0 +1,139 @@
+@import url("https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Asap&display=swap');
+
+
+body {
+    font-family: Lato, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    /* margin-top: 2%; */
+}
+
+#page-content {
+    margin: 5%;
+    margin-top: 0;
+}
+
+#update-feats-button {
+    margin-bottom: 10px;
+}
+
+#update-plots-button {
+    margin-top: 50px;
+    margin-bottom: 10px;
+}
+
+#feats-and-graphs {
+    display: flex;
+    justify-content: space-between;
+}
+
+#features {
+    /* float: left; */
+    width: 18%;
+    height: inherit;
+    flex-wrap: wrap;
+}
+
+#graphs-div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    /* margin-left: 18%; */
+    width: 80%;
+}
+
+#histogram-and-table {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+#histogram-div {
+    width: 46.5%;
+}
+
+#sectorinfo-div {
+    width: 46.5%;
+}
+
+#banner-links-container {
+    display: flex;
+    flex-direction: row;
+    background-color: white;
+    text-align: center;
+    margin-left: 40px;
+}
+
+#banner-links-container a {
+    width: 200px;
+    font-size: 1.25rem;
+    color: #333333;
+    text-decoration: none;
+}
+
+
+.row {
+    display: flex;
+    flex-direction: row;
+    width: inherit;
+}
+
+#banner-logo {
+    display: flex;
+    flex-direction: row;
+    margin-left: 6%;
+    width: fit-content
+}
+
+#inner-banner-logo {
+    border-right: 1px solid lightgrey;
+}
+
+.inner-banner {
+    width: 420px;
+    display: flex;
+    flex-direction: row;
+    height: 80%;
+    margin-top: 2.5%;
+    align-items: center;
+}
+
+.banner {
+    margin: 0px;
+    width: 100%;
+    color: #333333;
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    font-family: 'Asap', sans-serif;
+}
+
+#app-title {
+    font-size: 2.25rem;
+    padding-left: 6%;
+}
+
+#motto {
+    margin-top: 14px;
+}
+
+#pe_hist {
+    display: flex;
+    flex-direction: row;
+    overflow-y: scroll;
+}
+
+.pretty_container {
+    border-radius: 3px;
+    background-color: #f9f9f9;
+    margin: 15px;
+    padding: 10px;
+    position: relative;
+    box-shadow: 2px 2px 2px lightgrey;
+}
+
+::-webkit-scrollbar {
+    width: 0px; /* Remove scrollbar space */
+    background: transparent; /* Optional: just make scrollbar invisible */
+  }
