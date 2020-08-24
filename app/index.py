@@ -56,4 +56,5 @@ def display_page(pathname):
     return _layout, links
 
 if __name__ == '__main__':
+    cmn.app.title = 'Stockybocky'
     cmn.app.run_server(debug=True, host='0.0.0.0', port=80)

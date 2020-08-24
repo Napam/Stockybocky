@@ -45,7 +45,7 @@ body {
 
 #histogram-and-table {
     display: flex;
-    flex-wrap: wrap;
+    /* flex-wrap: wrap; */
     justify-content: space-between;
 }
 
@@ -55,6 +55,20 @@ body {
 
 #sectorinfo-div {
     width: 46.5%;
+}
+
+@media (max-width: 900px) {
+    #histogram-and-table {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    #histogram-div {
+        width: 100%;
+    }
+    
+    #sectorinfo-div {
+        width: 100%;
+    }
 }
 
 #banner-links-container {
@@ -71,7 +85,6 @@ body {
     color: #333333;
     text-decoration: none;
 }
-
 
 .row {
     display: flex;
@@ -122,6 +135,10 @@ body {
     display: flex;
     flex-direction: row;
     overflow-y: scroll;
+}
+
+#bigtalbe-div {
+    width: 100%;
 }
 
 .pretty_container {
